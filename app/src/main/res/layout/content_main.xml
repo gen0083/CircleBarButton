@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:my="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -18,6 +19,11 @@
     <jp.gcreate.sample.samplearccustomview.CircleTimerView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        my:margin="20dp"
+        my:base_color="#cccccc"
+        my:border_color="#af9024"
+        my:base_width="30dp"
+        my:border_width="20dp"
         android:layout_weight="1"
         />
 
