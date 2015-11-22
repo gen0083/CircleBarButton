@@ -6,5 +6,9 @@
         <attr name="border_color" format="color"/>
         <attr name="base_width" format="dimension"/>
         <attr name="border_width" format="dimension"/>
+        <attr name="button_text" format="string"/>
+        <attr name="button_text_size" format="dimension"/>
+        <attr name="button_text_color" format="color"/>
+        <attr name="button_margin" format="dimension"/>
     </declare-styleable>
 </resources>

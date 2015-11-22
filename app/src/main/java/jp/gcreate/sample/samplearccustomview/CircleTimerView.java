@@ -17,11 +17,15 @@ public class CircleTimerView extends View {
     private static final float DEFAULT_MARGIN = 20f;
     private static final int DEFAULT_BASE_COLOR = Color.rgb(200, 200, 200);
     private static final int DEFAULT_BORDER_COLOR = Color.rgb(40, 8, 0);
-    private RectF mRectF = new RectF();
+    private RectF mBarRectF = new RectF();
+    private RectF mButtonRectF = new RectF();
     private Paint mPaint = new Paint();
     private Paint mPaintBase = new Paint();
+    private Paint mButtonPaint = new Paint();
+    private Paint mTextPaint = new Paint();
     private float mArc = 300f;
     private float mMargin;
+    private float mButtonMargin;
 
     public CircleTimerView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -32,6 +36,11 @@ public class CircleTimerView extends View {
         float borderWidth = a.getDimension(R.styleable.CircleTimerView_border_width, 20f);
         int baseColor = a.getColor(R.styleable.CircleTimerView_base_color, DEFAULT_BASE_COLOR);
         int borderColor = a.getColor(R.styleable.CircleTimerView_border_color, DEFAULT_BORDER_COLOR);
+        float textSize = a.getDimension(R.styleable.CircleTimerView_button_text_size,
+                getResources().getDisplayMetrics().density * 20f);
+        int textColor = a.getColor(R.styleable.CircleTimerView_button_text_color, Color.BLACK);
+        mButtonMargin = a.getDimension(R.styleable.CircleTimerView_button_margin,
+                getResources().getDisplayMetrics().density * 10f);
         a.recycle();
 
         mPaint.setStrokeWidth(borderWidth);
@@ -42,17 +51,33 @@ public class CircleTimerView extends View {
         mPaintBase.setAntiAlias(true);
         mPaintBase.setColor(baseColor);
         mPaintBase.setStyle(Paint.Style.STROKE);
+        mButtonPaint.setAntiAlias(true);
+        mButtonPaint.setColor(borderColor);
+        mTextPaint.setColor(textColor);
+        mTextPaint.setTextSize(textSize);
+        mTextPaint.setAntiAlias(true);
         mMargin += Math.max(baseWidth, borderWidth);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        mRectF.set(0 + mMargin,
+        mBarRectF.set(0 + mMargin,
                 0 + mMargin,
                 canvas.getWidth() - mMargin,
                 canvas.getHeight() - mMargin);
-        canvas.drawArc(mRectF, 270f, 360f, false, mPaintBase);
-        canvas.drawArc(mRectF,270f,mArc,false,mPaint);
+        mButtonRectF.set(0 + mMargin + mButtonMargin,
+                0 + mMargin + mButtonMargin,
+                canvas.getWidth() - mMargin - mButtonMargin,
+                canvas.getHeight() - mMargin - mButtonMargin);
+        canvas.drawArc(mBarRectF, 270f, 360f, false, mPaintBase);
+        canvas.drawArc(mBarRectF, 270f, mArc, false, mPaint);
+        canvas.drawOval(mButtonRectF, mButtonPaint);
+        float textWidth =  mTextPaint.measureText("test");
+        Paint.FontMetrics metrics = mTextPaint.getFontMetrics();
+        float textHeight = metrics.descent - metrics.ascent;
+        float textX = (canvas.getWidth() - textWidth) / 2;
+        float textY = (canvas.getHeight() + textHeight) / 2;
+        canvas.drawText("test", textX, textY, mTextPaint);
     }
 
     public void rewriteCircle(float arc){
