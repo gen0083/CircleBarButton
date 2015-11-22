@@ -12,7 +12,7 @@ import android.view.View;
 /**
  * 2014/07/05
  */
-public class CircleTimerView extends View{
+public class CircleTimerView extends View {
 
     private static final float DEFAULT_MARGIN = 20f;
     private static final int DEFAULT_BASE_COLOR = Color.rgb(200, 200, 200);
@@ -42,14 +42,15 @@ public class CircleTimerView extends View{
         mPaintBase.setAntiAlias(true);
         mPaintBase.setColor(baseColor);
         mPaintBase.setStyle(Paint.Style.STROKE);
+        mMargin += Math.max(baseWidth, borderWidth);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        mRectF.set(getLeft(),
-                getTop(),
-                getRight(),
-                getBottom());
+        mRectF.set(0 + mMargin,
+                0 + mMargin,
+                canvas.getWidth() - mMargin,
+                canvas.getHeight() - mMargin);
         canvas.drawArc(mRectF, 270f, 360f, false, mPaintBase);
         canvas.drawArc(mRectF,270f,mArc,false,mPaint);
     }
