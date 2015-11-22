@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true">
-        <shape android:shape="oval">
-            <solid android:color="#F0Ba5c"/>
-            <size android:width="50dp"
-                  android:height="50dp"/>
-        </shape>
-    </item>
-
-    <item>
-        <shape android:shape="oval">
-            <solid android:color="#e0a94b"/>
-            <size android:width="50dp"
-                  android:height="50dp"/>
-        </shape>
-    </item>
+    <item android:state_pressed="true"
+          android:drawable="@drawable/button_pressed" />
+    <item android:drawable="@drawable/button_default" />
 </selector>

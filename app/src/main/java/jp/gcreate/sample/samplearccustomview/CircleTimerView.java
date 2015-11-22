@@ -5,20 +5,22 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.view.View;
+import android.widget.Button;
 
 /**
  * 2014/07/05
  */
-public class CircleTimerView extends View {
+public class CircleTimerView extends Button {
 
     private static final float DEFAULT_MARGIN = 20f;
     private static final int DEFAULT_BASE_COLOR = Color.rgb(200, 200, 200);
     private static final int DEFAULT_BORDER_COLOR = Color.rgb(40, 8, 0);
     private RectF mBarRectF = new RectF();
-    private RectF mButtonRectF = new RectF();
+    private Rect mButtonRect = new Rect();
     private Paint mPaint = new Paint();
     private Paint mPaintBase = new Paint();
     private Paint mButtonPaint = new Paint();
@@ -65,19 +67,14 @@ public class CircleTimerView extends View {
                 0 + mMargin,
                 canvas.getWidth() - mMargin,
                 canvas.getHeight() - mMargin);
-        mButtonRectF.set(0 + mMargin + mButtonMargin,
-                0 + mMargin + mButtonMargin,
-                canvas.getWidth() - mMargin - mButtonMargin,
-                canvas.getHeight() - mMargin - mButtonMargin);
+        mButtonRect.set((int)mMargin + (int)mButtonMargin,
+                (int)mMargin + (int)mButtonMargin,
+                canvas.getWidth() - (int)mMargin - (int)mButtonMargin,
+                canvas.getHeight() - (int)mMargin - (int)mButtonMargin);
+        Drawable background = getBackground();
+        background.setBounds(mButtonRect);
         canvas.drawArc(mBarRectF, 270f, 360f, false, mPaintBase);
         canvas.drawArc(mBarRectF, 270f, mArc, false, mPaint);
-        canvas.drawOval(mButtonRectF, mButtonPaint);
-        float textWidth =  mTextPaint.measureText("test");
-        Paint.FontMetrics metrics = mTextPaint.getFontMetrics();
-        float textHeight = metrics.descent - metrics.ascent;
-        float textX = (canvas.getWidth() - textWidth) / 2;
-        float textY = (canvas.getHeight() + textHeight) / 2;
-        canvas.drawText("test", textX, textY, mTextPaint);
     }
 
     public void rewriteCircle(float arc){
