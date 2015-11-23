@@ -26,6 +26,11 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        CircleTimerView target = (CircleTimerView) findViewById(R.id.circle);
+        findViewById(R.id.button).setOnClickListener(view -> {
+            target.onFinishedToRestart();
+        });
     }
 
     @Override

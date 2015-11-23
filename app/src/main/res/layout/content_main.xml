@@ -17,6 +17,7 @@
     >
 
     <jp.gcreate.sample.samplearccustomview.CircleTimerView
+        android:id="@+id/circle"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="#00ffffff"

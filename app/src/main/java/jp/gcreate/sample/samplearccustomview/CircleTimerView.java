@@ -7,10 +7,18 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+
+import java.util.concurrent.*;
 
 /**
  * 2014/07/05
@@ -24,11 +32,43 @@ public class CircleTimerView extends RelativeLayout {
     private Rect mButtonRect = new Rect();
     private Paint mPaint = new Paint();
     private Paint mPaintBase = new Paint();
-    private float mArc = 300f;
+    private float mArc = 10f;
     private float mMargin;
     private float mButtonMargin;
     private String mButtonText;
     private boolean mIs1to1 = true;
+    private HandlerThread animationThread;
+    private Handler toAnimation;
+    private Handler toUi;
+    private final Runnable animation = new Runnable() {
+        @Override
+        public void run() {
+            final float startpoint = mArc;
+            final float fromTo = 360f - mArc;
+            final long startTime = System.currentTimeMillis();
+            final long endTime = TimeUnit.MILLISECONDS.toMillis(300);
+            Interpolator interpolator = new AccelerateDecelerateInterpolator();
+            long elapsed = System.currentTimeMillis() - startTime;
+            long lap = 0;
+            while(elapsed < endTime) {
+                elapsed = System.currentTimeMillis() - startTime;
+                // post to percentage 0 - 100
+                // elapsed / endTime is time percentage
+                if (elapsed - lap > 10) {
+                    float accel = interpolator.getInterpolation((float)elapsed / (float)endTime);
+                    float percentage = accel * fromTo + startpoint;
+                    Log.d("test", "animation rewrite circle arc to " + percentage +
+                            " compute[" + accel + "*" + fromTo + "+" + startpoint + "]" +
+                            " at elapsed " + elapsed);
+                    Message msg = Message.obtain(toUi, 1, percentage);
+                    toUi.sendMessage(msg);
+                    lap = elapsed;
+                }
+            }
+            Message msg = toUi.obtainMessage(1, 360f);
+            toUi.sendMessage(msg);
+        }
+    };
 
     public CircleTimerView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -65,6 +105,17 @@ public class CircleTimerView extends RelativeLayout {
         params.setMargins(m, m, m, m);
         button.setLayoutParams(params);
         button.setText(mButtonText);
+
+        animationThread = new HandlerThread("animation");
+        animationThread.start();
+        toAnimation = new Handler(animationThread.getLooper());
+        toUi = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                Float percentage = (Float)msg.obj;
+                rewriteCircle(percentage);
+            }
+        };
     }
 
     @Override
@@ -80,8 +131,7 @@ public class CircleTimerView extends RelativeLayout {
     }
 
     public void onFinishedToRestart(){
-        mArc = 360f;
-        invalidate();
+        toAnimation.post(animation);
     }
 
     @Override
