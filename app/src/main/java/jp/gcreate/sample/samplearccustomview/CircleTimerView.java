@@ -23,8 +23,6 @@ public class CircleTimerView extends Button {
     private Rect mButtonRect = new Rect();
     private Paint mPaint = new Paint();
     private Paint mPaintBase = new Paint();
-    private Paint mButtonPaint = new Paint();
-    private Paint mTextPaint = new Paint();
     private float mArc = 300f;
     private float mMargin;
     private float mButtonMargin;
@@ -53,28 +51,14 @@ public class CircleTimerView extends Button {
         mPaintBase.setAntiAlias(true);
         mPaintBase.setColor(baseColor);
         mPaintBase.setStyle(Paint.Style.STROKE);
-        mButtonPaint.setAntiAlias(true);
-        mButtonPaint.setColor(borderColor);
-        mTextPaint.setColor(textColor);
-        mTextPaint.setTextSize(textSize);
-        mTextPaint.setAntiAlias(true);
         mMargin += Math.max(baseWidth, borderWidth);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        mBarRectF.set(0 + mMargin,
-                0 + mMargin,
-                canvas.getWidth() - mMargin,
-                canvas.getHeight() - mMargin);
-        mButtonRect.set((int)mMargin + (int)mButtonMargin,
-                (int)mMargin + (int)mButtonMargin,
-                canvas.getWidth() - (int)mMargin - (int)mButtonMargin,
-                canvas.getHeight() - (int)mMargin - (int)mButtonMargin);
-        Drawable background = getBackground();
-        background.setBounds(mButtonRect);
         canvas.drawArc(mBarRectF, 270f, 360f, false, mPaintBase);
         canvas.drawArc(mBarRectF, 270f, mArc, false, mPaint);
+        super.onDraw(canvas);
     }
 
     public void rewriteCircle(float arc){
@@ -89,7 +73,20 @@ public class CircleTimerView extends Button {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int spec = Math.min(widthMeasureSpec, heightMeasureSpec);
-        super.onMeasure(spec, spec);
+        int size = Math.min(MeasureSpec.getSize(widthMeasureSpec),
+                MeasureSpec.getSize(heightMeasureSpec));
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        widthMeasureSpec = MeasureSpec.makeMeasureSpec(size, widthMode);
+        heightMeasureSpec = MeasureSpec.makeMeasureSpec(size, heightMode);
+        int margin = (int) (mMargin + mButtonMargin);
+        mButtonRect.set(margin, margin, size - margin, size - margin);
+        mBarRectF.set(0 + mMargin,
+                0 + mMargin,
+                size - mMargin,
+                size - mMargin);
+        Drawable background = getBackground();
+        background.setBounds(mButtonRect);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }
