@@ -6,7 +6,6 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
 import android.os.Handler;
@@ -31,7 +30,6 @@ public class CircleTimerView extends RelativeLayout {
     private static final int DEFAULT_BASE_COLOR = Color.rgb(200, 200, 200);
     private static final int DEFAULT_BORDER_COLOR = Color.rgb(40, 8, 0);
     private RectF mBarRectF = new RectF();
-    private Rect mButtonRect = new Rect();
     private Paint mPaint = new Paint();
     private Paint mPaintBase = new Paint();
     private float mArc = 10f;
@@ -166,8 +164,6 @@ public class CircleTimerView extends RelativeLayout {
             widthMeasureSpec = MeasureSpec.makeMeasureSpec(size, widthMode);
             heightMeasureSpec = MeasureSpec.makeMeasureSpec(size, heightMode);
         }
-        int margin = (int) (mMargin + mButtonMargin);
-        mButtonRect.set(margin, margin, size - margin, size - margin);
         mBarRectF.set(0 + mMargin,
                 0 + mMargin,
                 MeasureSpec.getSize(widthMeasureSpec) - mMargin,
