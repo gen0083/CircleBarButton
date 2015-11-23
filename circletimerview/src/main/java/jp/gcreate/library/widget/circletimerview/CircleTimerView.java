@@ -25,7 +25,7 @@ import java.util.concurrent.*;
  * 2014/07/05
  */
 public class CircleTimerView extends RelativeLayout {
-
+    private static final String TAG = CircleTimerView.class.getSimpleName();
     private static final float DEFAULT_MARGIN = 20f;
     private static final int DEFAULT_BASE_COLOR = Color.rgb(200, 200, 200);
     private static final int DEFAULT_BORDER_COLOR = Color.rgb(40, 8, 0);
@@ -44,30 +44,37 @@ public class CircleTimerView extends RelativeLayout {
     private final Runnable animation = new Runnable() {
         @Override
         public void run() {
-            final float startpoint = mArc;
-            final float fromTo = 360f - mArc;
-            final long startTime = System.currentTimeMillis();
-            final long endTime = TimeUnit.MILLISECONDS.toMillis(300);
-            Interpolator interpolator = new AccelerateDecelerateInterpolator();
-            long elapsed = System.currentTimeMillis() - startTime;
-            long lap = 0;
-            while(elapsed < endTime) {
-                elapsed = System.currentTimeMillis() - startTime;
-                // post to percentage 0 - 100
-                // elapsed / endTime is time percentage
-                if (elapsed - lap > 10) {
-                    float accel = interpolator.getInterpolation((float)elapsed / (float)endTime);
-                    float percentage = accel * fromTo + startpoint;
-                    Log.d("test", "animation rewrite circle arc to " + percentage +
-                            " compute[" + accel + "*" + fromTo + "+" + startpoint + "]" +
-                            " at elapsed " + elapsed);
-                    Message msg = Message.obtain(toUi, 1, percentage);
-                    toUi.sendMessage(msg);
-                    lap = elapsed;
+            try {
+                final float startpoint = mArc;
+                final float fromTo = 360f - mArc;
+                final long startTime = System.currentTimeMillis();
+                final long endTime = TimeUnit.MILLISECONDS.toMillis(3000);
+                Interpolator interpolator = new AccelerateDecelerateInterpolator();
+                long elapsed = System.currentTimeMillis() - startTime;
+                long lap = 0;
+                while(elapsed < endTime) {
+                    elapsed = System.currentTimeMillis() - startTime;
+                    // post to percentage 0 - 100
+                    // elapsed / endTime is time percentage
+                    if (Thread.currentThread().isInterrupted()){
+                        throw new InterruptedException("animation canceled");
+                    }
+                    if (elapsed - lap > 10) {
+                        float accel = interpolator.getInterpolation((float)elapsed / (float)endTime);
+                        float percentage = accel * fromTo + startpoint;
+                        Log.d(TAG, "animation rewrite circle arc to " + percentage +
+                                " compute[" + accel + "*" + fromTo + "+" + startpoint + "]" +
+                                " at elapsed " + elapsed);
+                        Message msg = Message.obtain(toUi, 1, percentage);
+                        toUi.sendMessage(msg);
+                        lap = elapsed;
+                    }
                 }
+                Message msg = toUi.obtainMessage(1, 360f);
+                toUi.sendMessage(msg);
+            } catch (InterruptedException e) {
+                Log.d(TAG, "animation canceled so animation thread interrupted.");
             }
-            Message msg = toUi.obtainMessage(1, 360f);
-            toUi.sendMessage(msg);
         }
     };
 
@@ -186,5 +193,12 @@ public class CircleTimerView extends RelativeLayout {
 
     public void setOnClickListener(OnClickListener listener){
         mInnerButton.setOnClickListener(listener);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        toAnimation.removeMessages(1);
+        animationThread.interrupt();
     }
 }
