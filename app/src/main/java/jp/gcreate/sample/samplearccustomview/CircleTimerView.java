@@ -27,6 +27,7 @@ public class CircleTimerView extends RelativeLayout {
     private float mArc = 300f;
     private float mMargin;
     private float mButtonMargin;
+    private String mButtonText;
     private boolean mIs1to1 = true;
 
     public CircleTimerView(Context context, AttributeSet attrs) {
@@ -39,6 +40,7 @@ public class CircleTimerView extends RelativeLayout {
         float borderWidth = a.getDimension(R.styleable.CircleTimerView_border_width, 20f);
         int baseColor = a.getColor(R.styleable.CircleTimerView_base_color, DEFAULT_BASE_COLOR);
         int borderColor = a.getColor(R.styleable.CircleTimerView_border_color, DEFAULT_BORDER_COLOR);
+        mButtonText = a.getString(R.styleable.CircleTimerView_button_text);
         float textSize = a.getDimension(R.styleable.CircleTimerView_button_text_size,
                 getResources().getDisplayMetrics().density * 20f);
         int textColor = a.getColor(R.styleable.CircleTimerView_button_text_color, Color.BLACK);
@@ -62,7 +64,7 @@ public class CircleTimerView extends RelativeLayout {
         int m = (int)(mMargin + mButtonMargin);
         params.setMargins(m, m, m, m);
         button.setLayoutParams(params);
-
+        button.setText(mButtonText);
     }
 
     @Override
