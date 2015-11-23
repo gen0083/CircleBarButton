@@ -7,14 +7,15 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 
 /**
  * 2014/07/05
  */
-public class CircleTimerView extends Button {
+public class CircleTimerView extends RelativeLayout {
 
     private static final float DEFAULT_MARGIN = 20f;
     private static final int DEFAULT_BASE_COLOR = Color.rgb(200, 200, 200);
@@ -52,13 +53,21 @@ public class CircleTimerView extends Button {
         mPaintBase.setColor(baseColor);
         mPaintBase.setStyle(Paint.Style.STROKE);
         mMargin += Math.max(baseWidth, borderWidth);
+
+        View view = inflate(context, R.layout.layout_circle_timer_view, this);
+        Button button = (Button) view.findViewById(R.id.center_button);
+        MarginLayoutParams params = (MarginLayoutParams) button.getLayoutParams();
+        int m = (int)(mMargin + mButtonMargin);
+        params.setMargins(m, m, m, m);
+        button.setLayoutParams(params);
+
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawArc(mBarRectF, 270f, 360f, false, mPaintBase);
         canvas.drawArc(mBarRectF, 270f, mArc, false, mPaint);
-        super.onDraw(canvas);
+//        super.onDraw(canvas);
     }
 
     public void rewriteCircle(float arc){
@@ -85,8 +94,6 @@ public class CircleTimerView extends Button {
                 0 + mMargin,
                 size - mMargin,
                 size - mMargin);
-        Drawable background = getBackground();
-        background.setBounds(mButtonRect);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }

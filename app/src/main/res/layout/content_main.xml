@@ -19,7 +19,7 @@
     <jp.gcreate.sample.samplearccustomview.CircleTimerView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@drawable/selecteable_test"
+        android:background="#00ffffff"
         android:text="start"
         my:margin="20dp"
         my:base_color="#cccccc"
