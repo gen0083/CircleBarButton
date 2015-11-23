@@ -1,4 +1,4 @@
-package jp.gcreate.sample.samplearccustomview;
+package jp.gcreate.library.widget.circletimerview;
 
 import android.content.Context;
 import android.content.res.TypedArray;

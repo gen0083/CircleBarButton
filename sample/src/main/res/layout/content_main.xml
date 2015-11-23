@@ -16,7 +16,7 @@
     tools:showIn="@layout/activity_main"
     >
 
-    <jp.gcreate.sample.samplearccustomview.CircleTimerView
+    <jp.gcreate.library.widget.circletimerview.CircleTimerView
         android:id="@+id/circle"
         android:layout_width="match_parent"
         android:layout_height="0dp"
