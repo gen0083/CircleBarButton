@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="CircleTimerView">
+        <attr name="aspect">
+            <enum name="one_to_one" value="0"/>
+            <enum name="match_parent" value="1"/>
+        </attr>
         <attr name="margin" format="dimension"/>
         <attr name="base_color" format="color"/>
         <attr name="border_color" format="color"/>

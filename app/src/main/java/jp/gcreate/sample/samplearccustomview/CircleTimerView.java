@@ -27,10 +27,12 @@ public class CircleTimerView extends RelativeLayout {
     private float mArc = 300f;
     private float mMargin;
     private float mButtonMargin;
+    private boolean mIs1to1 = true;
 
     public CircleTimerView(Context context, AttributeSet attrs) {
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CircleTimerView);
+        mIs1to1 = a.getInt(R.styleable.CircleTimerView_aspect, 0) == 0;
         mMargin = a.getDimension(R.styleable.CircleTimerView_margin,
                 getResources().getDisplayMetrics().density * DEFAULT_MARGIN);
         float baseWidth = a.getDimension(R.styleable.CircleTimerView_base_width, 15f);
@@ -67,7 +69,7 @@ public class CircleTimerView extends RelativeLayout {
     protected void onDraw(Canvas canvas) {
         canvas.drawArc(mBarRectF, 270f, 360f, false, mPaintBase);
         canvas.drawArc(mBarRectF, 270f, mArc, false, mPaint);
-//        super.onDraw(canvas);
+        super.onDraw(canvas);
     }
 
     public void rewriteCircle(float arc){
@@ -84,16 +86,18 @@ public class CircleTimerView extends RelativeLayout {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int size = Math.min(MeasureSpec.getSize(widthMeasureSpec),
                 MeasureSpec.getSize(heightMeasureSpec));
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        widthMeasureSpec = MeasureSpec.makeMeasureSpec(size, widthMode);
-        heightMeasureSpec = MeasureSpec.makeMeasureSpec(size, heightMode);
+        if (mIs1to1) {
+            int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+            int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+            widthMeasureSpec = MeasureSpec.makeMeasureSpec(size, widthMode);
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(size, heightMode);
+        }
         int margin = (int) (mMargin + mButtonMargin);
         mButtonRect.set(margin, margin, size - margin, size - margin);
         mBarRectF.set(0 + mMargin,
                 0 + mMargin,
-                size - mMargin,
-                size - mMargin);
+                MeasureSpec.getSize(widthMeasureSpec) - mMargin,
+                MeasureSpec.getSize(heightMeasureSpec) - mMargin);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }

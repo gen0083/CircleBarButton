@@ -20,12 +20,13 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="#00ffffff"
-        android:text="start"
+        my:aspect="match_parent"
         my:margin="20dp"
         my:base_color="#cccccc"
         my:border_color="#af9024"
         my:base_width="5dp"
         my:border_width="10dp"
+        my:button_text="start"
         android:layout_weight="1"
         />
 
