@@ -1,5 +1,6 @@
 package jp.gcreate.library.widget.circletimerview;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -7,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -70,8 +72,26 @@ public class CircleTimerView extends RelativeLayout {
         }
     };
 
+    public CircleTimerView(Context context) {
+        this(context, null);
+    }
+
     public CircleTimerView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
+    }
+
+    public CircleTimerView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        initialize(context, attrs);
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public CircleTimerView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        initialize(context, attrs);
+    }
+
+    private void initialize(Context context, AttributeSet attrs){
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CircleTimerView);
         mIs1to1 = a.getInt(R.styleable.CircleTimerView_aspect, 0) == 0;
         mMargin = a.getDimension(R.styleable.CircleTimerView_margin,
