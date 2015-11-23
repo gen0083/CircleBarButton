@@ -105,6 +105,8 @@ public class CircleTimerView extends RelativeLayout {
         params.setMargins(m, m, m, m);
         button.setLayoutParams(params);
         button.setText(mButtonText);
+        button.setTextSize(textSize);
+        button.setTextColor(textColor);
 
         animationThread = new HandlerThread("animation");
         animationThread.start();
