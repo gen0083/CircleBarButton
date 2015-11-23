@@ -40,6 +40,7 @@ public class CircleTimerView extends RelativeLayout {
     private HandlerThread animationThread;
     private Handler toAnimation;
     private Handler toUi;
+    private Button mInnerButton;
     private final Runnable animation = new Runnable() {
         @Override
         public void run() {
@@ -117,14 +118,14 @@ public class CircleTimerView extends RelativeLayout {
         mMargin += Math.max(baseWidth, borderWidth);
 
         View view = inflate(context, R.layout.layout_circle_timer_view, this);
-        Button button = (Button) view.findViewById(R.id.center_button);
-        MarginLayoutParams params = (MarginLayoutParams) button.getLayoutParams();
+        mInnerButton = (Button) view.findViewById(R.id.center_button);
+        MarginLayoutParams params = (MarginLayoutParams) mInnerButton.getLayoutParams();
         int m = (int)(mMargin + mButtonMargin);
         params.setMargins(m, m, m, m);
-        button.setLayoutParams(params);
-        button.setText(mButtonText);
-        button.setTextSize(textSize);
-        button.setTextColor(textColor);
+        mInnerButton.setLayoutParams(params);
+        setText(mButtonText);
+        setTextSize(textSize);
+        setTextColor(textColor);
 
         animationThread = new HandlerThread("animation");
         animationThread.start();
@@ -169,5 +170,21 @@ public class CircleTimerView extends RelativeLayout {
                 MeasureSpec.getSize(widthMeasureSpec) - mMargin,
                 MeasureSpec.getSize(heightMeasureSpec) - mMargin);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    public void setText(String text){
+        mInnerButton.setText(text);
+    }
+
+    public void setTextSize(float size){
+        mInnerButton.setTextSize(size);
+    }
+
+    public void setTextColor(int color){
+        mInnerButton.setTextColor(color);
+    }
+
+    public void setOnClickListener(OnClickListener listener){
+        mInnerButton.setOnClickListener(listener);
     }
 }
