@@ -42,10 +42,11 @@ public class CircleTimerView extends RelativeLayout {
     private float viewMargin;
     private boolean isKeepAspect = true;
     private HandlerThread animationThread;
-    private Handler toAnimation;
-    private Handler toUi;
+    private Handler toAnimationHandler;
+    private Handler toUiHandler;
     private Button innerButton;
     private Interpolator interpolator;
+    private boolean isAnimation;
     private final Runnable animation = new Runnable() {
         @Override
         public void run() {
@@ -66,13 +67,16 @@ public class CircleTimerView extends RelativeLayout {
                     if (elapsed - lap > 10) {
                         float percentage = interpolator.getInterpolation((float)elapsed / (float)endTime);
                         float targetDegree = percentage * fromTo + startpoint;
-                        toUi.sendMessage(toUi.obtainMessage(MSG_REDRAW, targetDegree));
+                        toUiHandler.sendMessage(toUiHandler.obtainMessage(MSG_REDRAW, targetDegree));
                         lap = elapsed;
+                        Log.d(TAG, "circle bar animate to : " + targetDegree);
                     }
                 }
-                toUi.sendMessage(toUi.obtainMessage(MSG_REDRAW, 360f));
+                toUiHandler.sendMessage(toUiHandler.obtainMessage(MSG_REDRAW, 360f));
+                isAnimation = false;
             } catch (InterruptedException e) {
                 Log.d(TAG, "animation thread interrupted.");
+                isAnimation = false;
             }
         }
     };
@@ -150,8 +154,8 @@ public class CircleTimerView extends RelativeLayout {
         // initialize thread for animation
         animationThread = new HandlerThread("animation");
         animationThread.start();
-        toAnimation = new Handler(animationThread.getLooper());
-        toUi = new ToUiHandler(this);
+        toAnimationHandler = new Handler(animationThread.getLooper());
+        toUiHandler = new ToUiHandler(this);
     }
 
     @Override
@@ -166,7 +170,10 @@ public class CircleTimerView extends RelativeLayout {
     }
 
     public void onFinishedToRestart(){
-        toAnimation.post(animation);
+        if (!isAnimation) {
+            isAnimation = true;
+            toAnimationHandler.post(animation);
+        }
     }
 
     @Override
@@ -205,7 +212,7 @@ public class CircleTimerView extends RelativeLayout {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        toAnimation.removeMessages(1);
+        toAnimationHandler.removeMessages(MSG_REDRAW);
         animationThread.interrupt();
     }
 
