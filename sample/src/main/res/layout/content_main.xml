@@ -20,15 +20,15 @@
         android:id="@+id/circle"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_weight="1"
         my:keep_aspect="true"
-        my:margin="20dp"
-        my:base_color="#cccccc"
-        my:border_color="#af9024"
+        my:margin="10dp"
+        my:base_color="@color/grey_300"
+        my:border_color="@color/colorAccent"
         my:base_width="5dp"
         my:border_width="10dp"
         my:button_text="start"
         my:interpolator="@android:anim/accelerate_decelerate_interpolator"
-        android:layout_weight="1"
         />
 
     <Button
