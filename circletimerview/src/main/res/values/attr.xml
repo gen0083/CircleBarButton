@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="CircleTimerView">
+        <attr name="debug" format="boolean"/>
         <attr name="keep_aspect" format="boolean"/>
         <attr name="margin" format="dimension"/>
         <attr name="base_color" format="color"/>
@@ -11,6 +12,7 @@
         <attr name="button_text_size" format="dimension"/>
         <attr name="button_text_color" format="color"/>
         <attr name="button_margin" format="dimension"/>
+        <attr name="button_background" format="reference"/>
         <attr name="interpolator" format="reference"/>
     </declare-styleable>
 </resources>

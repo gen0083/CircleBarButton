@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="buttonPressed">#FF3F51B5</color>
+    <color name="buttonDefault">#FF303F9F</color>
+    <color name="barDefault">#FFFF4081</color>
+    <color name="barBaseDefault">#FFCCCCCC</color>
+</resources>

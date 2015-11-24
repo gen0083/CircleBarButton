@@ -2,6 +2,7 @@ package jp.gcreate.library.widget.circletimerview;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -31,16 +32,16 @@ public class CircleTimerView extends RelativeLayout {
     private static final float DEFAULT_MARGIN = 20f;
     private static final float DEFAULT_TEXT_SIZE = 18f;
     private static final float DEFAULT_BAR_WIDTH = 15f;
-    private static final int DEFAULT_TEXT_COLOR = Color.BLACK;
-    private static final int DEFAULT_BASE_COLOR = Color.rgb(200, 200, 200);
-    private static final int DEFAULT_BORDER_COLOR = Color.rgb(40, 8, 0);
     private static final int MSG_REDRAW = 1;
+    private Resources res;
+    private Resources.Theme theme;
     private RectF barRectF = new RectF();
     private Paint barPaint = new Paint();
     private Paint barBasePaint = new Paint();
     private float degree = 10f;
     private float viewMargin;
-    private boolean isKeepAspect = true;
+    private boolean isDebug;
+    private boolean isKeepAspect;
     private HandlerThread animationThread;
     private Handler toAnimationHandler;
     private Handler toUiHandler;
@@ -57,6 +58,7 @@ public class CircleTimerView extends RelativeLayout {
                 final long endTime = TimeUnit.MILLISECONDS.toMillis(300);
                 long elapsed = System.currentTimeMillis() - startTime;
                 long lap = 0;
+                logd("circle bar animate start.");
                 while(elapsed < endTime) {
                     elapsed = System.currentTimeMillis() - startTime;
                     // post to percentage 0 - 100
@@ -69,13 +71,14 @@ public class CircleTimerView extends RelativeLayout {
                         float targetDegree = percentage * fromTo + startpoint;
                         toUiHandler.sendMessage(toUiHandler.obtainMessage(MSG_REDRAW, targetDegree));
                         lap = elapsed;
-                        Log.d(TAG, "circle bar animate to : " + targetDegree);
+                        logd("circle bar animate to : " + targetDegree);
                     }
                 }
                 toUiHandler.sendMessage(toUiHandler.obtainMessage(MSG_REDRAW, 360f));
                 isAnimation = false;
+                logd("circle bar animate finished.");
             } catch (InterruptedException e) {
-                Log.d(TAG, "animation thread interrupted.");
+                logd("animation thread interrupted.");
                 isAnimation = false;
             }
         }
@@ -102,8 +105,11 @@ public class CircleTimerView extends RelativeLayout {
 
     private void initialize(Context context, AttributeSet attrs){
         // set style from xml
+        final float density = getResources().getDisplayMetrics().density;
+        res = getResources();
+        theme = getContext().getTheme();
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CircleTimerView);
-        float density = getResources().getDisplayMetrics().density;
+        isDebug = a.getBoolean(R.styleable.CircleTimerView_debug, false);
         isKeepAspect = a.getBoolean(R.styleable.CircleTimerView_keep_aspect, true);
         viewMargin = a.getDimension(R.styleable.CircleTimerView_margin,
                 getResources().getDisplayMetrics().density * DEFAULT_MARGIN);
@@ -111,26 +117,30 @@ public class CircleTimerView extends RelativeLayout {
                 density * DEFAULT_BAR_WIDTH);
         float borderWidth = a.getDimension(R.styleable.CircleTimerView_border_width,
                 density * DEFAULT_BAR_WIDTH);
-        int baseColor = a.getColor(R.styleable.CircleTimerView_base_color, DEFAULT_BASE_COLOR);
-        int borderColor = a.getColor(R.styleable.CircleTimerView_border_color, DEFAULT_BORDER_COLOR);
-        String mButtonText = a.getString(R.styleable.CircleTimerView_button_text);
+        int barBaseColor = a.getColor(R.styleable.CircleTimerView_base_color,
+                getColorFromResourceId(R.color.barBaseDefault));
+        int barColor = a.getColor(R.styleable.CircleTimerView_border_color,
+                getColorFromResourceId(R.color.barDefault));
+        String buttonText = a.getString(R.styleable.CircleTimerView_button_text);
         // text size will compute to pixel at setTextSize()
         float textSize = a.getDimension(R.styleable.CircleTimerView_button_text_size,
                 DEFAULT_TEXT_SIZE);
-        int textColor = a.getColor(R.styleable.CircleTimerView_button_text_color, DEFAULT_TEXT_COLOR);
+        int textColor = a.getColor(R.styleable.CircleTimerView_button_text_color,
+                getColorFromResourceId(android.R.color.black));
         float mButtonMargin = a.getDimension(R.styleable.CircleTimerView_button_margin,
                 density * 10f);
         int interpolatorResId = a.getResourceId(R.styleable.CircleTimerView_interpolator, 0);
+        int buttonResId = a.getResourceId(R.styleable.CircleTimerView_button_background, R.drawable.button_selector);
         a.recycle();
 
         // initialize fields
         barPaint.setStrokeWidth(borderWidth);
         barPaint.setAntiAlias(true);
-        barPaint.setColor(borderColor);
+        barPaint.setColor(barColor);
         barPaint.setStyle(Paint.Style.STROKE);
         barBasePaint.setStrokeWidth(baseWidth);
         barBasePaint.setAntiAlias(true);
-        barBasePaint.setColor(baseColor);
+        barBasePaint.setColor(barBaseColor);
         barBasePaint.setStyle(Paint.Style.STROKE);
         viewMargin += Math.max(baseWidth, borderWidth); // bar is drawn over own width
         if (interpolatorResId != 0){
@@ -146,9 +156,11 @@ public class CircleTimerView extends RelativeLayout {
         int m = (int)(viewMargin + mButtonMargin);
         params.setMargins(m, m, m, m);
         innerButton.setLayoutParams(params);
-        setText(mButtonText);
+        setText(buttonText);
         setTextSize(textSize);
         setTextColor(textColor);
+        setBackground(buttonResId);
+        this.setBackgroundResource(0);
         this.setBackgroundColor(Color.argb(0, 255, 255, 255));
 
         // initialize thread for animation
@@ -158,14 +170,22 @@ public class CircleTimerView extends RelativeLayout {
         toUiHandler = new ToUiHandler(this);
     }
 
+    private int getColorFromResourceId(int resId){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return res.getColor(resId, theme);
+        }else{
+            return res.getColor(resId);
+        }
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawArc(barRectF, 270f, 360f, false, barBasePaint);
         canvas.drawArc(barRectF, 270f, degree, false, barPaint);
     }
 
-    public void rewriteCircle(float arc){
-        degree = arc;
+    public void rewriteCircle(float angle){
+        degree = angle;
         invalidate();
     }
 
@@ -209,11 +229,21 @@ public class CircleTimerView extends RelativeLayout {
         innerButton.setOnClickListener(listener);
     }
 
+    public void setBackground(int resId){
+        innerButton.setBackgroundResource(resId);
+    }
+
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         toAnimationHandler.removeMessages(MSG_REDRAW);
         animationThread.interrupt();
+    }
+
+    private void logd(String msg){
+        if (isDebug){
+            Log.d(TAG, msg);
+        }
     }
 
     static class ToUiHandler extends Handler{
