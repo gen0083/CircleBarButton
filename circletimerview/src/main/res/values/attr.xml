@@ -14,5 +14,6 @@
         <attr name="button_text_size" format="dimension"/>
         <attr name="button_text_color" format="color"/>
         <attr name="button_margin" format="dimension"/>
+        <attr name="interporlator" format="reference"/>
     </declare-styleable>
 </resources>

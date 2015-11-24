@@ -14,7 +14,8 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -41,6 +42,7 @@ public class CircleTimerView extends RelativeLayout {
     private Handler toAnimation;
     private Handler toUi;
     private Button mInnerButton;
+    private Interpolator interpolator;
     private final Runnable animation = new Runnable() {
         @Override
         public void run() {
@@ -48,8 +50,7 @@ public class CircleTimerView extends RelativeLayout {
                 final float startpoint = mArc;
                 final float fromTo = 360f - mArc;
                 final long startTime = System.currentTimeMillis();
-                final long endTime = TimeUnit.MILLISECONDS.toMillis(3000);
-                Interpolator interpolator = new AccelerateDecelerateInterpolator();
+                final long endTime = TimeUnit.MILLISECONDS.toMillis(300);
                 long elapsed = System.currentTimeMillis() - startTime;
                 long lap = 0;
                 while(elapsed < endTime) {
@@ -112,6 +113,7 @@ public class CircleTimerView extends RelativeLayout {
         int textColor = a.getColor(R.styleable.CircleTimerView_button_text_color, Color.BLACK);
         mButtonMargin = a.getDimension(R.styleable.CircleTimerView_button_margin,
                 getResources().getDisplayMetrics().density * 10f);
+        int interporlatorResId = a.getResourceId(R.styleable.CircleTimerView_interporlator, 0);
         a.recycle();
 
         mPaint.setStrokeWidth(borderWidth);
@@ -123,6 +125,11 @@ public class CircleTimerView extends RelativeLayout {
         mPaintBase.setColor(baseColor);
         mPaintBase.setStyle(Paint.Style.STROKE);
         mMargin += Math.max(baseWidth, borderWidth);
+        if (interporlatorResId != 0){
+            interpolator = AnimationUtils.loadInterpolator(getContext(), interporlatorResId);
+        }else{
+            interpolator = new AccelerateInterpolator();
+        }
 
         View view = inflate(context, R.layout.layout_circle_timer_view, this);
         mInnerButton = (Button) view.findViewById(R.id.center_button);
