@@ -110,8 +110,9 @@ public class CircleTimerView extends RelativeLayout {
         int baseColor = a.getColor(R.styleable.CircleTimerView_base_color, DEFAULT_BASE_COLOR);
         int borderColor = a.getColor(R.styleable.CircleTimerView_border_color, DEFAULT_BORDER_COLOR);
         String mButtonText = a.getString(R.styleable.CircleTimerView_button_text);
+        // text size will compute to pixel at setTextSize()
         float textSize = a.getDimension(R.styleable.CircleTimerView_button_text_size,
-                density * DEFAULT_TEXT_SIZE);
+                DEFAULT_TEXT_SIZE);
         int textColor = a.getColor(R.styleable.CircleTimerView_button_text_color, DEFAULT_TEXT_COLOR);
         float mButtonMargin = a.getDimension(R.styleable.CircleTimerView_button_margin,
                 density * 10f);
@@ -134,7 +135,7 @@ public class CircleTimerView extends RelativeLayout {
             interpolator = new LinearInterpolator();
         }
 
-        // inflate inner button
+        // inflate view
         View view = inflate(context, R.layout.layout_circle_timer_view, this);
         innerButton = (Button) view.findViewById(R.id.center_button);
         MarginLayoutParams params = (MarginLayoutParams) innerButton.getLayoutParams();
@@ -144,6 +145,7 @@ public class CircleTimerView extends RelativeLayout {
         setText(mButtonText);
         setTextSize(textSize);
         setTextColor(textColor);
+        this.setBackgroundColor(Color.argb(0, 255, 255, 255));
 
         // initialize thread for animation
         animationThread = new HandlerThread("animation");
@@ -156,7 +158,6 @@ public class CircleTimerView extends RelativeLayout {
     protected void onDraw(Canvas canvas) {
         canvas.drawArc(barRectF, 270f, 360f, false, barBasePaint);
         canvas.drawArc(barRectF, 270f, degree, false, barPaint);
-//        super.onDraw(canvas);
     }
 
     public void rewriteCircle(float arc){
@@ -170,19 +171,18 @@ public class CircleTimerView extends RelativeLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        final int width = MeasureSpec.getSize(widthMeasureSpec);
-        final int height = MeasureSpec.getSize(heightMeasureSpec);
         if (isKeepAspect) {
-            final int size = Math.min(width, height);
-            final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-            final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-            widthMeasureSpec = MeasureSpec.makeMeasureSpec(size, widthMode);
+            int size = Math.min(MeasureSpec.getSize(widthMeasureSpec),
+                                MeasureSpec.getSize(heightMeasureSpec));
+            int widthMode  = MeasureSpec.getMode(widthMeasureSpec);
+            int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+            widthMeasureSpec  = MeasureSpec.makeMeasureSpec(size, widthMode);
             heightMeasureSpec = MeasureSpec.makeMeasureSpec(size, heightMode);
         }
         barRectF.set(0 + viewMargin,
                      0 + viewMargin,
-                     width - viewMargin,
-                     height - viewMargin);
+                     MeasureSpec.getSize(widthMeasureSpec)  - viewMargin,
+                     MeasureSpec.getSize(heightMeasureSpec) - viewMargin);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
