@@ -14,12 +14,13 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.*;
 
 /**
@@ -28,27 +29,29 @@ import java.util.concurrent.*;
 public class CircleTimerView extends RelativeLayout {
     private static final String TAG = CircleTimerView.class.getSimpleName();
     private static final float DEFAULT_MARGIN = 20f;
+    private static final float DEFAULT_TEXT_SIZE = 18f;
+    private static final float DEFAULT_BAR_WIDTH = 15f;
+    private static final int DEFAULT_TEXT_COLOR = Color.BLACK;
     private static final int DEFAULT_BASE_COLOR = Color.rgb(200, 200, 200);
     private static final int DEFAULT_BORDER_COLOR = Color.rgb(40, 8, 0);
-    private RectF mBarRectF = new RectF();
-    private Paint mPaint = new Paint();
-    private Paint mPaintBase = new Paint();
-    private float mArc = 10f;
-    private float mMargin;
-    private float mButtonMargin;
-    private String mButtonText;
-    private boolean mIs1to1 = true;
+    private static final int MSG_REDRAW = 1;
+    private RectF barRectF = new RectF();
+    private Paint barPaint = new Paint();
+    private Paint barBasePaint = new Paint();
+    private float degree = 10f;
+    private float viewMargin;
+    private boolean isKeepAspect = true;
     private HandlerThread animationThread;
     private Handler toAnimation;
     private Handler toUi;
-    private Button mInnerButton;
+    private Button innerButton;
     private Interpolator interpolator;
     private final Runnable animation = new Runnable() {
         @Override
         public void run() {
             try {
-                final float startpoint = mArc;
-                final float fromTo = 360f - mArc;
+                final float startpoint = degree;
+                final float fromTo = 360f - degree;
                 final long startTime = System.currentTimeMillis();
                 final long endTime = TimeUnit.MILLISECONDS.toMillis(300);
                 long elapsed = System.currentTimeMillis() - startTime;
@@ -61,20 +64,15 @@ public class CircleTimerView extends RelativeLayout {
                         throw new InterruptedException("animation canceled");
                     }
                     if (elapsed - lap > 10) {
-                        float accel = interpolator.getInterpolation((float)elapsed / (float)endTime);
-                        float percentage = accel * fromTo + startpoint;
-                        Log.d(TAG, "animation rewrite circle arc to " + percentage +
-                                " compute[" + accel + "*" + fromTo + "+" + startpoint + "]" +
-                                " at elapsed " + elapsed);
-                        Message msg = Message.obtain(toUi, 1, percentage);
-                        toUi.sendMessage(msg);
+                        float percentage = interpolator.getInterpolation((float)elapsed / (float)endTime);
+                        float targetDegree = percentage * fromTo + startpoint;
+                        toUi.sendMessage(toUi.obtainMessage(MSG_REDRAW, targetDegree));
                         lap = elapsed;
                     }
                 }
-                Message msg = toUi.obtainMessage(1, 360f);
-                toUi.sendMessage(msg);
+                toUi.sendMessage(toUi.obtainMessage(MSG_REDRAW, 360f));
             } catch (InterruptedException e) {
-                Log.d(TAG, "animation canceled so animation thread interrupted.");
+                Log.d(TAG, "animation thread interrupted.");
             }
         }
     };
@@ -99,69 +97,70 @@ public class CircleTimerView extends RelativeLayout {
     }
 
     private void initialize(Context context, AttributeSet attrs){
+        // set style from xml
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CircleTimerView);
-        mIs1to1 = a.getInt(R.styleable.CircleTimerView_aspect, 0) == 0;
-        mMargin = a.getDimension(R.styleable.CircleTimerView_margin,
+        float density = getResources().getDisplayMetrics().density;
+        isKeepAspect = a.getBoolean(R.styleable.CircleTimerView_keep_aspect, true);
+        viewMargin = a.getDimension(R.styleable.CircleTimerView_margin,
                 getResources().getDisplayMetrics().density * DEFAULT_MARGIN);
-        float baseWidth = a.getDimension(R.styleable.CircleTimerView_base_width, 15f);
-        float borderWidth = a.getDimension(R.styleable.CircleTimerView_border_width, 20f);
+        float baseWidth = a.getDimension(R.styleable.CircleTimerView_base_width,
+                density * DEFAULT_BAR_WIDTH);
+        float borderWidth = a.getDimension(R.styleable.CircleTimerView_border_width,
+                density * DEFAULT_BAR_WIDTH);
         int baseColor = a.getColor(R.styleable.CircleTimerView_base_color, DEFAULT_BASE_COLOR);
         int borderColor = a.getColor(R.styleable.CircleTimerView_border_color, DEFAULT_BORDER_COLOR);
-        mButtonText = a.getString(R.styleable.CircleTimerView_button_text);
+        String mButtonText = a.getString(R.styleable.CircleTimerView_button_text);
         float textSize = a.getDimension(R.styleable.CircleTimerView_button_text_size,
-                getResources().getDisplayMetrics().density * 20f);
-        int textColor = a.getColor(R.styleable.CircleTimerView_button_text_color, Color.BLACK);
-        mButtonMargin = a.getDimension(R.styleable.CircleTimerView_button_margin,
-                getResources().getDisplayMetrics().density * 10f);
-        int interporlatorResId = a.getResourceId(R.styleable.CircleTimerView_interporlator, 0);
+                density * DEFAULT_TEXT_SIZE);
+        int textColor = a.getColor(R.styleable.CircleTimerView_button_text_color, DEFAULT_TEXT_COLOR);
+        float mButtonMargin = a.getDimension(R.styleable.CircleTimerView_button_margin,
+                density * 10f);
+        int interpolatorResId = a.getResourceId(R.styleable.CircleTimerView_interpolator, 0);
         a.recycle();
 
-        mPaint.setStrokeWidth(borderWidth);
-        mPaint.setAntiAlias(true);
-        mPaint.setColor(borderColor);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaintBase.setStrokeWidth(baseWidth);
-        mPaintBase.setAntiAlias(true);
-        mPaintBase.setColor(baseColor);
-        mPaintBase.setStyle(Paint.Style.STROKE);
-        mMargin += Math.max(baseWidth, borderWidth);
-        if (interporlatorResId != 0){
-            interpolator = AnimationUtils.loadInterpolator(getContext(), interporlatorResId);
+        // initialize fields
+        barPaint.setStrokeWidth(borderWidth);
+        barPaint.setAntiAlias(true);
+        barPaint.setColor(borderColor);
+        barPaint.setStyle(Paint.Style.STROKE);
+        barBasePaint.setStrokeWidth(baseWidth);
+        barBasePaint.setAntiAlias(true);
+        barBasePaint.setColor(baseColor);
+        barBasePaint.setStyle(Paint.Style.STROKE);
+        viewMargin += Math.max(baseWidth, borderWidth); // bar is drawn over own width
+        if (interpolatorResId != 0){
+            interpolator = AnimationUtils.loadInterpolator(getContext(), interpolatorResId);
         }else{
-            interpolator = new AccelerateInterpolator();
+            interpolator = new LinearInterpolator();
         }
 
+        // inflate inner button
         View view = inflate(context, R.layout.layout_circle_timer_view, this);
-        mInnerButton = (Button) view.findViewById(R.id.center_button);
-        MarginLayoutParams params = (MarginLayoutParams) mInnerButton.getLayoutParams();
-        int m = (int)(mMargin + mButtonMargin);
+        innerButton = (Button) view.findViewById(R.id.center_button);
+        MarginLayoutParams params = (MarginLayoutParams) innerButton.getLayoutParams();
+        int m = (int)(viewMargin + mButtonMargin);
         params.setMargins(m, m, m, m);
-        mInnerButton.setLayoutParams(params);
+        innerButton.setLayoutParams(params);
         setText(mButtonText);
         setTextSize(textSize);
         setTextColor(textColor);
 
+        // initialize thread for animation
         animationThread = new HandlerThread("animation");
         animationThread.start();
         toAnimation = new Handler(animationThread.getLooper());
-        toUi = new Handler(){
-            @Override
-            public void handleMessage(Message msg) {
-                Float percentage = (Float)msg.obj;
-                rewriteCircle(percentage);
-            }
-        };
+        toUi = new ToUiHandler(this);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawArc(mBarRectF, 270f, 360f, false, mPaintBase);
-        canvas.drawArc(mBarRectF, 270f, mArc, false, mPaint);
-        super.onDraw(canvas);
+        canvas.drawArc(barRectF, 270f, 360f, false, barBasePaint);
+        canvas.drawArc(barRectF, 270f, degree, false, barPaint);
+//        super.onDraw(canvas);
     }
 
     public void rewriteCircle(float arc){
-        mArc = arc;
+        degree = arc;
         invalidate();
     }
 
@@ -171,35 +170,36 @@ public class CircleTimerView extends RelativeLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int size = Math.min(MeasureSpec.getSize(widthMeasureSpec),
-                MeasureSpec.getSize(heightMeasureSpec));
-        if (mIs1to1) {
-            int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-            int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        final int width = MeasureSpec.getSize(widthMeasureSpec);
+        final int height = MeasureSpec.getSize(heightMeasureSpec);
+        if (isKeepAspect) {
+            final int size = Math.min(width, height);
+            final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+            final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
             widthMeasureSpec = MeasureSpec.makeMeasureSpec(size, widthMode);
             heightMeasureSpec = MeasureSpec.makeMeasureSpec(size, heightMode);
         }
-        mBarRectF.set(0 + mMargin,
-                0 + mMargin,
-                MeasureSpec.getSize(widthMeasureSpec) - mMargin,
-                MeasureSpec.getSize(heightMeasureSpec) - mMargin);
+        barRectF.set(0 + viewMargin,
+                     0 + viewMargin,
+                     width - viewMargin,
+                     height - viewMargin);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     public void setText(String text){
-        mInnerButton.setText(text);
+        innerButton.setText(text);
     }
 
     public void setTextSize(float size){
-        mInnerButton.setTextSize(size);
+        innerButton.setTextSize(size);
     }
 
     public void setTextColor(int color){
-        mInnerButton.setTextColor(color);
+        innerButton.setTextColor(color);
     }
 
     public void setOnClickListener(OnClickListener listener){
-        mInnerButton.setOnClickListener(listener);
+        innerButton.setOnClickListener(listener);
     }
 
     @Override
@@ -207,5 +207,24 @@ public class CircleTimerView extends RelativeLayout {
         super.onDetachedFromWindow();
         toAnimation.removeMessages(1);
         animationThread.interrupt();
+    }
+
+    static class ToUiHandler extends Handler{
+        private WeakReference<CircleTimerView> target;
+
+        public ToUiHandler(CircleTimerView instance){
+            target = new WeakReference<>(instance);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == MSG_REDRAW) {
+                float degree = (Float) msg.obj;
+                CircleTimerView view = target.get();
+                if (view != null) {
+                    view.rewriteCircle(degree);
+                }
+            }
+        }
     }
 }
