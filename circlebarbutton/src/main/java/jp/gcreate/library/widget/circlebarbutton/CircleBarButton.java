@@ -47,10 +47,11 @@ public class CircleBarButton extends RelativeLayout {
     private RectF barRectF = new RectF();
     private Paint barPaint = new Paint();
     private Paint barBasePaint = new Paint();
-    private float degree = 10f;
+    private float degree;
     private float viewMargin;
     private boolean isDebug;
     private boolean isKeepAspect;
+    private float barStartedAngle;
     private HandlerThread animationThread;
     private Handler toAnimationHandler;
     private Handler toUiHandler;
@@ -139,6 +140,8 @@ public class CircleBarButton extends RelativeLayout {
         int interpolatorResId = a.getResourceId(R.styleable.CircleBarButton_interpolator, 0);
         int buttonResId = a.getResourceId(R.styleable.CircleBarButton_button_background,
                 R.drawable.jp_gcreate_library_widget_circlebarbutton_button);
+        barStartedAngle = a.getFloat(R.styleable.CircleBarButton_start_angle, 270f);
+        degree = a.getFloat(R.styleable.CircleBarButton_default_angle, 360f);
         a.recycle();
 
         // initialize fields
@@ -188,8 +191,8 @@ public class CircleBarButton extends RelativeLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawArc(barRectF, 270f, 360f, false, barBasePaint);
-        canvas.drawArc(barRectF, 270f, degree, false, barPaint);
+        canvas.drawArc(barRectF, barStartedAngle, 360f, false, barBasePaint);
+        canvas.drawArc(barRectF, barStartedAngle, degree, false, barPaint);
     }
 
     public void rewriteCircle(float angle){
