@@ -1,1 +1,1 @@
-include ':sample', ':circletimerview'
+include ':sample', ':circlebarbutton'

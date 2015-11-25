@@ -1,4 +1,4 @@
-package jp.gcreate.library.widget.circletimerview;
+package jp.gcreate.library.widget.circlebarbutton;
 
 import org.junit.Test;
 

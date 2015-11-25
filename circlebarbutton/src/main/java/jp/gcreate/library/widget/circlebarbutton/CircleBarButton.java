@@ -1,4 +1,4 @@
-package jp.gcreate.library.widget.circletimerview;
+package jp.gcreate.library.widget.circlebarbutton;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -38,8 +38,8 @@ import java.util.concurrent.*;
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-public class CircleTimerView extends RelativeLayout {
-    private static final String TAG = CircleTimerView.class.getSimpleName();
+public class CircleBarButton extends RelativeLayout {
+    private static final String TAG = CircleBarButton.class.getSimpleName();
     private static final float DEFAULT_MARGIN = 20f;
     private static final float DEFAULT_TEXT_SIZE = 18f;
     private static final float DEFAULT_BAR_WIDTH = 15f;
@@ -93,21 +93,21 @@ public class CircleTimerView extends RelativeLayout {
         }
     };
 
-    public CircleTimerView(Context context) {
+    public CircleBarButton(Context context) {
         this(context, null);
     }
 
-    public CircleTimerView(Context context, AttributeSet attrs) {
+    public CircleBarButton(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public CircleTimerView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CircleBarButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initialize(context, attrs);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public CircleTimerView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public CircleBarButton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initialize(context, attrs);
     }
@@ -115,29 +115,30 @@ public class CircleTimerView extends RelativeLayout {
     private void initialize(Context context, AttributeSet attrs){
         // set style from xml
         final float density = getResources().getDisplayMetrics().density;
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CircleTimerView);
-        isDebug = a.getBoolean(R.styleable.CircleTimerView_debug, false);
-        isKeepAspect = a.getBoolean(R.styleable.CircleTimerView_keep_aspect, true);
-        viewMargin = a.getDimension(R.styleable.CircleTimerView_margin,
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CircleBarButton);
+        isDebug = a.getBoolean(R.styleable.CircleBarButton_debug, false);
+        isKeepAspect = a.getBoolean(R.styleable.CircleBarButton_keep_aspect, true);
+        viewMargin = a.getDimension(R.styleable.CircleBarButton_margin,
                 getResources().getDisplayMetrics().density * DEFAULT_MARGIN);
-        float baseWidth = a.getDimension(R.styleable.CircleTimerView_base_width,
+        float baseWidth = a.getDimension(R.styleable.CircleBarButton_base_width,
                 density * DEFAULT_BAR_WIDTH);
-        float borderWidth = a.getDimension(R.styleable.CircleTimerView_border_width,
+        float borderWidth = a.getDimension(R.styleable.CircleBarButton_border_width,
                 density * DEFAULT_BAR_WIDTH);
-        int barBaseColor = a.getColor(R.styleable.CircleTimerView_base_color,
+        int barBaseColor = a.getColor(R.styleable.CircleBarButton_base_color,
                 getColorFromResourceId(R.color.barBaseDefault));
-        int barColor = a.getColor(R.styleable.CircleTimerView_border_color,
+        int barColor = a.getColor(R.styleable.CircleBarButton_border_color,
                 getColorFromResourceId(R.color.barDefault));
-        String buttonText = a.getString(R.styleable.CircleTimerView_button_text);
+        String buttonText = a.getString(R.styleable.CircleBarButton_button_text);
         // text size will compute to pixel at setTextSize()
-        float textSize = a.getDimension(R.styleable.CircleTimerView_button_text_size,
+        float textSize = a.getDimension(R.styleable.CircleBarButton_button_text_size,
                 DEFAULT_TEXT_SIZE);
-        int textColor = a.getColor(R.styleable.CircleTimerView_button_text_color,
+        int textColor = a.getColor(R.styleable.CircleBarButton_button_text_color,
                 getColorFromResourceId(android.R.color.black));
-        float mButtonMargin = a.getDimension(R.styleable.CircleTimerView_button_margin,
+        float mButtonMargin = a.getDimension(R.styleable.CircleBarButton_button_margin,
                 density * 10f);
-        int interpolatorResId = a.getResourceId(R.styleable.CircleTimerView_interpolator, 0);
-        int buttonResId = a.getResourceId(R.styleable.CircleTimerView_button_background, R.drawable.jp_gcreate_library_widget_circletimerview_button);
+        int interpolatorResId = a.getResourceId(R.styleable.CircleBarButton_interpolator, 0);
+        int buttonResId = a.getResourceId(R.styleable.CircleBarButton_button_background,
+                R.drawable.jp_gcreate_library_widget_circlebarbutton_button);
         a.recycle();
 
         // initialize fields
@@ -157,8 +158,8 @@ public class CircleTimerView extends RelativeLayout {
         }
 
         // inflate view
-        View view = inflate(context, R.layout.jp_gcreate_library_widget_circletimerview_layout, this);
-        innerButton = (Button) view.findViewById(R.id.jp_gcreate_library_widget_circletimerview_button);
+        View view = inflate(context, R.layout.jp_gcreate_library_widget_circlebarbutton_layout, this);
+        innerButton = (Button) view.findViewById(R.id.jp_gcreate_library_widget_circlebarbutton_button);
         MarginLayoutParams params = (MarginLayoutParams) innerButton.getLayoutParams();
         int m = (int)(viewMargin + mButtonMargin);
         params.setMargins(m, m, m, m);
@@ -254,9 +255,9 @@ public class CircleTimerView extends RelativeLayout {
     }
 
     static class ToUiHandler extends Handler{
-        private WeakReference<CircleTimerView> target;
+        private WeakReference<CircleBarButton> target;
 
-        public ToUiHandler(CircleTimerView instance){
+        public ToUiHandler(CircleBarButton instance){
             target = new WeakReference<>(instance);
         }
 
@@ -264,7 +265,7 @@ public class CircleTimerView extends RelativeLayout {
         public void handleMessage(Message msg) {
             if (msg.what == MSG_REDRAW) {
                 float degree = (Float) msg.obj;
-                CircleTimerView view = target.get();
+                CircleBarButton view = target.get();
                 if (view != null) {
                     view.rewriteCircle(degree);
                 }

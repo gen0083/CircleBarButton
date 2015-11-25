@@ -6,7 +6,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import jp.gcreate.library.widget.circletimerview.CircleTimerView;
+import jp.gcreate.library.widget.circlebarbutton.CircleBarButton;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        CircleTimerView target = (CircleTimerView) findViewById(R.id.circle);
+        CircleBarButton target = (CircleBarButton) findViewById(R.id.circle);
         findViewById(R.id.button).setOnClickListener(view -> target.onFinishedToRestart());
     }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="CircleTimerView">
+    <declare-styleable name="CircleBarButton">
         <attr name="debug" format="boolean"/>
         <attr name="keep_aspect" format="boolean"/>
         <attr name="margin" format="dimension"/>
