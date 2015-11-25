@@ -2,7 +2,6 @@ package jp.gcreate.library.widget.circletimerview;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -33,8 +32,6 @@ public class CircleTimerView extends RelativeLayout {
     private static final float DEFAULT_TEXT_SIZE = 18f;
     private static final float DEFAULT_BAR_WIDTH = 15f;
     private static final int MSG_REDRAW = 1;
-    private Resources res;
-    private Resources.Theme theme;
     private RectF barRectF = new RectF();
     private Paint barPaint = new Paint();
     private Paint barBasePaint = new Paint();
@@ -52,8 +49,8 @@ public class CircleTimerView extends RelativeLayout {
         @Override
         public void run() {
             try {
-                final float startpoint = degree;
-                final float fromTo = 360f - degree;
+                final float from = degree;
+                final float to = 360f - degree;
                 final long startTime = System.currentTimeMillis();
                 final long endTime = TimeUnit.MILLISECONDS.toMillis(300);
                 long elapsed = System.currentTimeMillis() - startTime;
@@ -68,7 +65,7 @@ public class CircleTimerView extends RelativeLayout {
                     }
                     if (elapsed - lap > 10) {
                         float percentage = interpolator.getInterpolation((float)elapsed / (float)endTime);
-                        float targetDegree = percentage * fromTo + startpoint;
+                        float targetDegree = percentage * to + from;
                         toUiHandler.sendMessage(toUiHandler.obtainMessage(MSG_REDRAW, targetDegree));
                         lap = elapsed;
                         logd("circle bar animate to : " + targetDegree);
@@ -106,8 +103,6 @@ public class CircleTimerView extends RelativeLayout {
     private void initialize(Context context, AttributeSet attrs){
         // set style from xml
         final float density = getResources().getDisplayMetrics().density;
-        res = getResources();
-        theme = getContext().getTheme();
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CircleTimerView);
         isDebug = a.getBoolean(R.styleable.CircleTimerView_debug, false);
         isKeepAspect = a.getBoolean(R.styleable.CircleTimerView_keep_aspect, true);
@@ -172,9 +167,9 @@ public class CircleTimerView extends RelativeLayout {
 
     private int getColorFromResourceId(int resId){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return res.getColor(resId, theme);
+            return getResources().getColor(resId, getContext().getTheme());
         }else{
-            return res.getColor(resId);
+            return getResources().getColor(resId);
         }
     }
 
