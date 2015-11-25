@@ -23,3 +23,18 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.1'
 }
+
+apply plugin: 'maven'
+
+def repo = new File(rootDir, "repository")
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository url: "file://${repo.absolutePath}"
+            pom.version = '0.1.0'
+            pom.groupId = 'jp.gcreate'
+            pom.artifactId = 'widget-circlebarbutton'
+        }
+    }
+}
