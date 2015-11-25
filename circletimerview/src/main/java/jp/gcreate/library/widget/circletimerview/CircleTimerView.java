@@ -130,7 +130,7 @@ public class CircleTimerView extends RelativeLayout {
         float mButtonMargin = a.getDimension(R.styleable.CircleTimerView_button_margin,
                 density * 10f);
         int interpolatorResId = a.getResourceId(R.styleable.CircleTimerView_interpolator, 0);
-        int buttonResId = a.getResourceId(R.styleable.CircleTimerView_button_background, R.drawable.button_selector);
+        int buttonResId = a.getResourceId(R.styleable.CircleTimerView_button_background, R.drawable.jp_gcreate_library_widget_circletimerview_button);
         a.recycle();
 
         // initialize fields
@@ -150,8 +150,8 @@ public class CircleTimerView extends RelativeLayout {
         }
 
         // inflate view
-        View view = inflate(context, R.layout.layout_circle_timer_view, this);
-        innerButton = (Button) view.findViewById(R.id.center_button);
+        View view = inflate(context, R.layout.jp_gcreate_library_widget_circletimerview_layout, this);
+        innerButton = (Button) view.findViewById(R.id.jp_gcreate_library_widget_circletimerview_button);
         MarginLayoutParams params = (MarginLayoutParams) innerButton.getLayoutParams();
         int m = (int)(viewMargin + mButtonMargin);
         params.setMargins(m, m, m, m);

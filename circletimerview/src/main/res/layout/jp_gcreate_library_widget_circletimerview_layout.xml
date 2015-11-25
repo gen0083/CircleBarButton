@@ -4,11 +4,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
     <Button
-        android:id="@+id/center_button"
+        android:id="@+id/jp_gcreate_library_widget_circletimerview_button"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerInParent="true"
-        android:background="@drawable/button_selector"
+        android:background="@drawable/jp_gcreate_library_widget_circletimerview_button"
         tools:text="test"
         />
 
