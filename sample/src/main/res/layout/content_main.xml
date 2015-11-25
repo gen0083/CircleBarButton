@@ -29,6 +29,7 @@
         my:base_width="5dp"
         my:border_width="10dp"
         my:button_text="start"
+        my:button_text_color="@color/white"
         my:interpolator="@android:anim/accelerate_decelerate_interpolator"
         />
 
@@ -36,6 +37,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/button"
-        android:text="start"
+        android:text="reset"
         />
 </LinearLayout>
