@@ -1,1 +1,1 @@
-include ':sample', ':circlebarbutton'
+include ':sample', ':widget-circlebarbutton'
