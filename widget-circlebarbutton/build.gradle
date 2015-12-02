@@ -48,7 +48,7 @@ bintray {
     configurations = ['archives'] //When uploading configuration files
     pkg {
         repo = 'maven'
-        name = 'circlebarbutton'
+        name = project.name
         desc = 'This is a Button that has circle bar around it'
         websiteUrl = siteUrl
         issueTrackerUrl = 'https://github.com/gen0083/CircleBarButton/issues'
@@ -60,28 +60,32 @@ bintray {
 }
 
 install {
-    repositories.mavenInstaller.pom.project {
-        packaging 'aar'
-        name 'circlebarbutton'
-        url siteUrl
-        licenses {
-            license {
-                name 'The Apache Software License, Version 2.0'
-                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-            }
-        }
-        developers {
-            developer {
-                id 'gen0083'
-                name 'G-CREATE'
-                email 'archiherewego@gmail.com'
-            }
-        }
-        scm {
-            connection gitUrl
-            developerConnection gitUrl
-            url siteUrl
+    repositories.mavenInstaller{
+        pom{
+            project {
+                packaging 'aar'
+                name 'widget-circlebarbutton'
+                url siteUrl
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'gen0083'
+                        name 'gen ichro'
+                        email 'archiherewego@gmail.com'
+                    }
+                }
+                scm {
+                    connection 'https://github.com/gen0083/CircleBarButton.git'
+                    developerConnection 'https://github.com/gen0083/CircleBarButton.git'
+                    url siteUrl
 
+                }
+            }
         }
     }
 }
